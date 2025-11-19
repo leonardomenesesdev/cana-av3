@@ -4,9 +4,10 @@ import java.util.*;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-
-            //carrega 3 arquivos reais da pasta archive (dataset: 20NewsGroups)
-            List<File> files = loadRealFiles(3);
+        //carrega 1 arquivo do dataset, caso extremo
+        List<File> files = loadRealFiles(1);
+        //carrega 3 arquivos reais da pasta archive (dataset: 20NewsGroups)
+//            List<File> files = loadRealFiles(3);
             //exibe os arquivos que foram selecionados
             System.out.println("Arquivos selecionados:");
             for (File f : files) {

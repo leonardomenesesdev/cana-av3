@@ -3,6 +3,13 @@ import java.util.*;
 public class MainEmpirica {
     public static void main(String[] args) throws IOException {
         System.out.println("Comparando algoritmos de fusão real de arquivos:\n");
+        // -----------------------------------------------------------------
+        // TESTE EXTREMO: N=1
+        // -----------------------------------------------------------------
+        // Aqui, n=1. A execução deve ser redundante, é um caso extremo.
+        List<Integer> sizeOne = Arrays.asList(50); // n=1
+        runTest("Teste N=1 (Fixo)", sizeOne, true);
+
 
         // -----------------------------------------------------------------
         // TESTE 1: N PEQUENO (Viável para Força Bruta)
@@ -28,7 +35,7 @@ public class MainEmpirica {
         for (int i = 0; i < 50; i++) {
             sizesLarge.add(rand.nextInt(1000) + 10); // Tamanhos de 10 a 1010 linhas
         }
-        runTest("Teste N=50 (Randômico)", sizesLarge, true); // false = não rodar força bruta
+        runTest("Teste N=50 (Randômico)", sizesLarge, false); // false = não rodar força bruta
     }
 
     /**
@@ -99,9 +106,9 @@ public class MainEmpirica {
         System.out.println("\n\n");
     }
 
-    /**
-     * Cria arquivos de teste com base em uma lista de contagem de linhas.
-     */
+
+    //cria arquivos de teste com base em uma lista de contagem de linhas.
+
     private static List<File> createTestFiles(List<Integer> lineCounts) throws IOException {
         List<File> files = new ArrayList<>();
         for (int i = 0; i < lineCounts.size(); i++) {
