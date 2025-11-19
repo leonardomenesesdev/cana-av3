@@ -1,14 +1,18 @@
 import java.io.*;
 import java.util.*;
 
+
 public class FileMergerBruteForce {
 
     //função recebe uma lista de arquivos e uma string com o caminho em que o novo arquivo (oriundo das mesclagens) será gerado
-    //a função retorna o custo mínimo (fusão ótima) entre as combinações possíveis
-    public static long mergeBruteForce(List<File> files, String outputDir) throws IOException {
+    //retorna um objeto Result contendo tanto o custo mínimo quanto o arquivo ótimo final
+    public static Result mergeBruteForce(List<File> files, String outputDir) throws IOException {
 
         //Se a lista tiver apenas um arquivo ou for vazia, o custo é 0, pois não é necessária uma mesclagem - Tratamento de Caso Extremo.
-        if (files == null || files.size() <= 1) return 0;
+        //retorna também o próprio arquivo, pois ele já é o resultado da fusão
+        if (files == null || files.size() <= 1) {
+            return new Result(0, files.get(0));
+        }
 
         //garante que o diretório de saída existe antes de tentar escrever os arquivos temporários
         File dir = new File(outputDir);
@@ -18,8 +22,10 @@ public class FileMergerBruteForce {
         //redefinida sem problemas.
         long minCost = Long.MAX_VALUE;
 
-        //instancia dois for's para percorrer todas as combinações possíveis entre os arquivos (ex: 1° (i=0) com 2° (j=1), depois
-        //1° com o 3° e etc...) até testar todas as combinações possíveis com o 1° arquivo. Após isso faria o mesmo teste para o 2° e etc.
+        //variável para armazenar o arquivo resultante com fusão ótima
+        File bestFile = null;
+
+        //instancia dois for's para percorrer todas as combinações possíveis entre os arquivos
         for (int i = 0; i < files.size(); i++) {
             for (int j = i + 1; j < files.size(); j++) {
 
@@ -36,39 +42,53 @@ public class FileMergerBruteForce {
                 //o custo é representado pelo tamanho dos arquivos em questão (consumo em bytes)
                 long cost = f1.length() + f2.length();
 
-                //arquivo originado pela fusão dos dois arquivos.
-                //A diferença é que agora criamos arquivos temporários únicos para cada chamada, evitando sobrescrita incorreta.
+                //cria arquivos temporários únicos para cada chamada, evitando sobrescrita incorreta.
                 File merged = File.createTempFile("merged_brute_", ".txt", dir);
 
                 //chama a função mergeFiles para consumar a fusão
                 mergeFiles(f1, f2, merged);
 
-                //Cria uma nova lista, com base na que é passada no parâmetro, para substituir os 2 arquivos pais pelo arquivo resultante
+                //cria uma nova lista, com base na que é passada no parâmetro, para substituir os 2 arquivos pais pelo arquivo resultante
                 List<File> newList = new ArrayList<>(files);
 
                 //remove os arquivos pais da lista
                 newList.remove(j);
                 newList.remove(i);
 
-                //adiciona o arquivo resultante na lista, consumando a substituição para uma próxima iteração.
+                //adiciona o arquivo resultante na lista, consumando a substituição para uma próxima iteração
                 newList.add(merged);
 
-                //faz uma chamada recursiva para calcular e armazenar o custo da fusão-teste
-                cost += mergeBruteForce(newList, outputDir);
+                //faz uma chamada recursiva para calcular e armazenar o custo da fusão-teste, a recursão também retorna
+                // o arquivo ótimo dessa sequência
+                Result recResult = mergeBruteForce(newList, outputDir);
+                long totalCost = cost + recResult.cost;
 
                 //se o custo resultante da chamada recursiva for menor que o minCost (originalmente armazenado com um valor muito grande)
                 //o minCost assume o valor do custo encontrado, que é menor
-                if (cost < minCost) {
-                    minCost = cost;
-                }
+                if (totalCost < minCost) {
 
-                //finaliza removendo o arquivo de fusão-teste (temporário, usado apenas para calcular o custo)
-                merged.delete();
+                    //se já havia um arquivo ótimo anterior, ele é removido
+                    if (bestFile != null && bestFile.exists()) {
+                        bestFile.delete();
+                    }
+
+                    minCost = totalCost;
+
+                    //o arquivo ótimo é o arquivo retornado pela recursão
+                    bestFile = recResult.file;
+
+                } else {
+                    //se a fusão temporária não pertence ao caminho ótimo, ela é apagada.
+                    merged.delete();
+
+                    //o arquivo ótimo da recursão também não pertence à melhor sequência, então ele é deletado
+                    recResult.file.delete();
+                }
             }
         }
 
-        //retorna o menor custo, ajudando em uma futura chamada recursiva e, consequentemente, no resultado final.
-        return minCost;
+        //retorna tanto o menor custo quanto o arquivo ótimo final
+        return new Result(minCost, bestFile);
     }
 
     //função usada para realizar, de fato, a fusão dos arquivos
