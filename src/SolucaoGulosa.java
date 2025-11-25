@@ -70,15 +70,28 @@ public class SolucaoGulosa {
 
         return new GreedyResult(totalCost, finalFile);
     }
-
+    //função usada para realizar, de fato, a fusão dos arquivos
+    //recebe os arquivos pais (f1 e f2) e o arquivo que deverá receber o conteúdo que tem nos arquivos pais.
     private static void mergeFiles(File f1, File f2, File merged) throws IOException {
+
+        //Usa a biblioteca BufferedWriter para 'escrever' o conteúdo dos arquivos pais
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(merged));
+
+             //lê o conteúdo do arquivo 1
              BufferedReader r1 = new BufferedReader(new FileReader(f1));
+
+             //lê o conteúdo do arquivo 2
              BufferedReader r2 = new BufferedReader(new FileReader(f2))) {
 
+            //cria uma variável linha para armazenar o valor de cada linha dos arquivos
             String line;
 
+            //while para percorrer as linhas do arquivo 1, sempre trocando o valor da variável line e escrevendo, no arquivo resultante,
+            //o conteúdo salvo em "line"
             while ((line = r1.readLine()) != null) writer.write(line + "\n");
+
+            //while para percorrer as linhas do arquivo 2, sempre trocando o valor da variável line e escrevendo, no arquivo resultante,
+            //o conteúdo salvo em "line"
             while ((line = r2.readLine()) != null) writer.write(line + "\n");
         }
     }
