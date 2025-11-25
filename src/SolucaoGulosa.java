@@ -2,7 +2,7 @@ import java.io.*;
 
 public class SolucaoGulosa {
 
-    // Estrutura para armazenar resultado final
+    //estrutura para armazenar o resultado final (custo e arquivo)
     public static class GreedyResult {
         public long cost;
         public File finalFile;
@@ -13,27 +13,28 @@ public class SolucaoGulosa {
         }
     }
 
-    // Classe wrapper para permitir comparação entre arquivos pelo tamanho
-    // (necessário para que a MinHeap saiba qual é o menor arquivo)
+    //classe wrapper para permitir comparação entre arquivos pelo tamanho, ajuda pra que a minheap saiba qual é o menor arquivo
     public static class FileWrapper implements Comparable<FileWrapper> {
+        //atributo 'file'
         public File file;
 
         public FileWrapper(File f) {
             this.file = f;
         }
-
+        //comparador do arquivo, compara o objeto file com o objeto 'o'
         @Override
         public int compareTo(FileWrapper o) {
             return Long.compare(this.file.length(), o.file.length());
         }
     }
 
+    //funcao para realizar a solução gulosa
     public static GreedyResult mergeGreedy(java.util.List<File> files, String outputDir) throws IOException {
 
-        // Usa a Priority Queue manual (MinHeap) criada por você
+        // usa uma fila de prioridade criada manualmente, nomeada de pq
         FilaPrioridade<FileWrapper> pq = new FilaPrioridade<>();
 
-        // adiciona todos os arquivos à PQ manual
+        // adiciona todos os arquivos na fila
         for (File f : files) {
             pq.add(new FileWrapper(f));
         }
