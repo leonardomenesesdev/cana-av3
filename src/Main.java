@@ -1,20 +1,23 @@
 import java.io.*;
 import java.util.*;
 
+import org.knowm.xchart.*;     // ← XChart
+import org.knowm.xchart.style.markers.SeriesMarkers;
+
 public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        //carrega 3 arquivos reais da pasta archive (dataset: 20NewsGroups)
+        //carrega 3 arquivos
         List<File> files = loadRealFiles(3);
 
-        //exibe os arquivos que foram selecionados
+        //exibe os arquivos selecionados
         System.out.println("Arquivos selecionados:");
         for (File f : files) {
             System.out.println(" - " + f.getName() + " (" + f.length() + " bytes)");
         }
 
-        // diretório para salvar fusões
+        // diretório de saída
         String outputDir = "output/";
         new File(outputDir).mkdirs();
 
@@ -34,11 +37,8 @@ public class Main {
 
 
 
-
-
-
         // ============================================================
-        // 3) FUSÃO POR FORÇA BRUTA
+        // 2) FUSÃO POR FORÇA BRUTA
         // ============================================================
         System.out.println("\n--- Testando Força Bruta ---");
 
@@ -51,19 +51,18 @@ public class Main {
             System.out.println("Custo ótimo: " + bruteResult.cost + " bytes");
 
             if (bruteResult.file != null && bruteResult.file.exists()) {
-
                 File finalFile = new File(outputDir, "merged_optimal.txt");
-                System.out.println("Arquivo ótimo gerado em: " + finalFile.getAbsolutePath());
-
                 bruteResult.file.renameTo(finalFile);
             }
-        } else {
-            System.out.println("Resultado da força bruta é null.");
         }
 
         System.out.println("Tempo: " + timeBrute + " ms");
 
-        //otimização por algoritmo guloso
+
+
+        // ============================================================
+        // 3) FUSÃO GULOSA
+        // ============================================================
         System.out.println("\n--- Testando Guloso (Heap Min) ---");
 
         long startGreedy = System.currentTimeMillis();
@@ -75,16 +74,44 @@ public class Main {
         System.out.println("Custo guloso: " + greedyResult.cost + " bytes");
         System.out.println("Tempo: " + timeGreedy + " ms");
 
-        if (greedyResult.finalFile != null && greedyResult.finalFile.exists()) {
-            System.out.println("Arquivo final (guloso): " + greedyResult.finalFile.getAbsolutePath());
-        }
 
+
+        // ============================================================
+        // 4) GERAR GRÁFICO COM XCHART
+        // ============================================================
+        gerarGraficoXChart(timeSeq, timeGreedy, timeBrute);
+
+        System.out.println("\nGráfico criado em: output_grafico.png");
     }
 
 
 
-    //função para carregar os arquivos da pasta 'archive', que contém arquivos tirados do dataset (20NewsGroups)
-    //recebe o número de arquivos a ser carregados como parâmetro
+    // ============================================================
+    // FUNÇÃO PARA GERAR O GRÁFICO COM XCHART
+    // ============================================================
+    private static void gerarGraficoXChart(long seq, long greedy, long brute) throws IOException {
+
+        CategoryChart chart = new CategoryChartBuilder()
+                .width(800)
+                .height(600)
+                .title("Comparação de Tempo — 3 Arquivos Reais")
+                .xAxisTitle("Algoritmo")
+                .yAxisTitle("Tempo (ms)")
+                .build();
+
+        chart.addSeries("Tempo (ms)",
+                Arrays.asList("Sequencial", "Guloso", "Força Bruta"),
+                Arrays.asList(seq, greedy, brute)
+        ).setMarker(SeriesMarkers.NONE);
+
+        BitmapEncoder.saveBitmap(chart, "output_grafico", BitmapEncoder.BitmapFormat.PNG);
+    }
+
+
+
+    // ============================================================
+    // CARREGA OS ARQUIVOS REAIS DO DATASET
+    // ============================================================
     private static List<File> loadRealFiles(int n) {
         File folder = new File("src/archive");
 
@@ -97,10 +124,8 @@ public class Main {
 
         List<File> selected = new ArrayList<>();
 
-        // pegar apenas n arquivos
-        for (int i = 0; i < n && i < allFiles.length; i++) {
+        for (int i = 0; i < n && i < allFiles.length; i++)
             selected.add(allFiles[i]);
-        }
 
         return selected;
     }

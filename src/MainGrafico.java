@@ -22,7 +22,7 @@ public class MainGrafico {
         List<Long> tempoBrute = new ArrayList<>();
 
         // Executa de n = 1 até n = 6
-        for (int n = 1; n <= 6; n++) {
+        for (int n = 1; n <= 8; n++) {
 
             System.out.println("\n=============================");
             System.out.println("Executando para n = " + n);

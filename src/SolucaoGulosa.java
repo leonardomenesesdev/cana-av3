@@ -30,12 +30,12 @@ public class SolucaoGulosa {
 
     //funcao para realizar a solução gulosa
     public static GreedyResult mergeGreedy(java.util.List<File> files, String outputDir) throws IOException {
-        // lista nula ou vazia → não há fusão
+        // lista nula ou vazia não tem fusão
         if (files == null || files.isEmpty()) {
             return new GreedyResult(0, null);
         }
 
-        // lista com apenas 1 arquivo → custo 0
+        // lista com apenas 1 arquivo tem custo custo 0 e o resultado é o próprio arquivo
         if (files.size() == 1) {
             return new GreedyResult(0, files.get(0));
         }
@@ -50,7 +50,7 @@ public class SolucaoGulosa {
         long totalCost = 0;
         int step = 1;
 
-        // enquanto houver pelo menos dois arquivos,
+        // enquanto houver mais de um arquivo,
         // remove sempre os dois menores (estratégia gulosa)
         while (pq.size() > 1) {
 
@@ -66,7 +66,7 @@ public class SolucaoGulosa {
 
             // cria arquivo temporário resultante da fusão
             File merged = new File(outputDir, "merged_greedy_" + (step++) + ".txt");
-
+            //chama a funcao pra fazer a mesclagem
             mergeFiles(f1, f2, merged);
 
             // adiciona o arquivo recém-fundido de volta na PQ manual

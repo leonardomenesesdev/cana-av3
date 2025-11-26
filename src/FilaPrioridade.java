@@ -1,13 +1,12 @@
-// Implementação de uma fila de prioridade usando uma min-heap
+//implementação de uma fila de prioridade usando uma min-heap
 public class FilaPrioridade<T extends Comparable<T>>{
 
-    // array genérico para armazenar os elementos
-    private T[] heap;        // array que armazena a heap
+    //array genérico para armazenar os elementos
+    private T[] heap;        //array que armazena a heap
     private int size;        // quantidade de elementos no heap
 
     // construtor inicial da fila de prioridade
     public FilaPrioridade() {
-
         heap = (T[]) new Comparable[10]; // tamanho inicial fixo
         size = 0;                        // nenhum elemento inicialmente
     }
@@ -20,7 +19,7 @@ public class FilaPrioridade<T extends Comparable<T>>{
         size++;
     }
 
-    // retorna o menor elemento SEM remover
+    // retorna o menor elemento sem remover
     public T peek() {
         if (size == 0) return null;
         return heap[0];
@@ -48,9 +47,7 @@ public class FilaPrioridade<T extends Comparable<T>>{
         return size;
     }
 
-    // -------------------------------------------------------------
-    // ------- MÉTODOS INTERNOS: EXPANSÃO DO ARRAY -----------------
-    // -------------------------------------------------------------
+
 
     // garante que há espaço suficiente no array
     @SuppressWarnings("unchecked")
@@ -72,9 +69,7 @@ public class FilaPrioridade<T extends Comparable<T>>{
         }
     }
 
-    // -------------------------------------------------------------
-    // ------- HEAPIFY-UP (subir elemento para manter min-heap) ----
-    // -------------------------------------------------------------
+
     // ajusta a heap subindo o elemento no índice dado
     private void heapifyUp(int index) {
 
@@ -95,9 +90,7 @@ public class FilaPrioridade<T extends Comparable<T>>{
         }
     }
 
-    // -------------------------------------------------------------
-    // ------- HEAPIFY-DOWN (descer elemento para manter min-heap) -
-    // -------------------------------------------------------------
+
     // ajusta a heap descendo o elemento no índice dado
     private void heapifyDown(int index) {
 
