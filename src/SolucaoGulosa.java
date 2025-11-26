@@ -30,7 +30,15 @@ public class SolucaoGulosa {
 
     //funcao para realizar a solução gulosa
     public static GreedyResult mergeGreedy(java.util.List<File> files, String outputDir) throws IOException {
+        // lista nula ou vazia → não há fusão
+        if (files == null || files.isEmpty()) {
+            return new GreedyResult(0, null);
+        }
 
+        // lista com apenas 1 arquivo → custo 0
+        if (files.size() == 1) {
+            return new GreedyResult(0, files.get(0));
+        }
         // usa uma fila de prioridade criada manualmente, nomeada de pq
         FilaPrioridade<FileWrapper> pq = new FilaPrioridade<>();
 
