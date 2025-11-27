@@ -22,7 +22,7 @@ public class MainGrafico {
         List<Long> tempoBrute = new ArrayList<>();
 
         // Executa de n = 1 até n = 6
-        for (int n = 1; n <= 8; n++) {
+        for (int n = 1; n <= 6; n++) {
 
             System.out.println("\n=============================");
             System.out.println("Executando para n = " + n);
@@ -87,6 +87,14 @@ public class MainGrafico {
                 .yAxisTitle("tempo (ms)")
                 .build();
 
+        XYChart chart2 = new XYChartBuilder()
+                .width(900)
+                .height(600)
+                .title("Comparação de Tempo — Sequencial vs Guloso")
+                .xAxisTitle("n (qtde de arquivos)")
+                .yAxisTitle("tempo (ms)")
+                .build();
+
         // Série Sequencial
         XYSeries s1 = chart.addSeries("Sequencial", eixoN, tempoSeq);
         s1.setMarker(SeriesMarkers.CIRCLE);
@@ -103,6 +111,13 @@ public class MainGrafico {
         BitmapEncoder.saveBitmap(chart, "grafico_comparativo", BitmapEncoder.BitmapFormat.PNG);
 
         System.out.println("\nGráfico gerado como: grafico_comparativo.png");
+
+        XYSeries s4 = chart2.addSeries("Seq", eixoN, tempoSeq);
+        s4.setMarker(SeriesMarkers.CIRCLE);
+        XYSeries s5 = chart2.addSeries("Algoritmo Guloso", eixoN, tempoGreedy);
+        s5.setMarker(SeriesMarkers.SQUARE);
+        BitmapEncoder.saveBitmap(chart2, "grafico_sem_bruteforce", BitmapEncoder.BitmapFormat.PNG);
+
     }
 
     // cria n arquivos reais
