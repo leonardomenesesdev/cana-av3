@@ -49,11 +49,8 @@ public class Main {
 
         if (bruteResult != null) {
             System.out.println("Custo ótimo: " + bruteResult.cost + " bytes");
+            System.out.println("Arquivo resultante: " + bruteResult.file.getAbsolutePath());
 
-            if (bruteResult.file != null && bruteResult.file.exists()) {
-                File finalFile = new File(outputDir, "merged_optimal.txt");
-                bruteResult.file.renameTo(finalFile);
-            }
         }
 
         System.out.println("Tempo: " + timeBrute + " ms");
@@ -73,15 +70,14 @@ public class Main {
 
         System.out.println("Custo guloso: " + greedyResult.cost + " bytes");
         System.out.println("Tempo: " + timeGreedy + " ms");
-
-
+        System.out.println("Arquivo guloso resultante: " + greedyResult.finalFile.getAbsolutePath());
 
         // ============================================================
         // 4) GERAR GRÁFICO COM XCHART
         // ============================================================
         gerarGraficoXChart(timeSeq, timeGreedy, timeBrute);
 
-        System.out.println("\nGráfico criado em: output_grafico.png");
+        System.out.println("\nGráfico criado em: grafico_arquivos_reais.png");
     }
 
 
@@ -104,7 +100,7 @@ public class Main {
                 Arrays.asList(seq, greedy, brute)
         ).setMarker(SeriesMarkers.NONE);
 
-        BitmapEncoder.saveBitmap(chart, "output_grafico", BitmapEncoder.BitmapFormat.PNG);
+        BitmapEncoder.saveBitmap(chart, "grafico_arquivos_reais", BitmapEncoder.BitmapFormat.PNG);
     }
 
 

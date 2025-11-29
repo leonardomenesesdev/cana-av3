@@ -6,16 +6,9 @@ import org.knowm.xchart.style.markers.SeriesMarkers;
 public class MainGrafico {
 
     public static void main(String[] args) throws IOException {
-
-        String outputDir = "output_grafico";
+        String outputDir = "output_empirico";
         new File(outputDir).mkdirs();
 
-        File csv = new File("resultado_grafico.csv");
-        BufferedWriter writer = new BufferedWriter(new FileWriter(csv));
-
-        writer.write("n,Sequencial,Guloso,ForcaBruta\n");
-
-        // armazenar os dados em listas para gerar o gráfico depois
         List<Integer> eixoN = new ArrayList<>();
         List<Long> tempoSeq = new ArrayList<>();
         List<Long> tempoGreedy = new ArrayList<>();
@@ -28,52 +21,70 @@ public class MainGrafico {
             System.out.println("Executando para n = " + n);
             System.out.println("=============================");
 
+            // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            // CRIA A PASTA DE RESULTADOS PARA ESTE n
+            // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            String pastaN = outputDir + "/n_" + n;
+            new File(pastaN).mkdirs();
+            // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
             List<File> files = createTestFiles(n);
 
             // ============================
             // SEQUENCIAL
             // ============================
             long startSeq = System.currentTimeMillis();
-            long costSeq = FileMergerSequential.mergeSequential(new ArrayList<>(files), outputDir);
+            long costSeq = FileMergerSequential.mergeSequential(new ArrayList<>(files), pastaN);
             long endSeq = System.currentTimeMillis();
             long tSeq = endSeq - startSeq;
+
+            System.out.println("\nAlgoritmo Sequencial:");
+            System.out.println(" Custo total: " + costSeq + " bytes");
+            System.out.println(" Tempo: " + tSeq + " ms");
+
+            // ============================
+            // FORÇA BRUTA
+            // ============================
+            long tBrute;
+            if (n <= 7) {
+                long startBrute = System.currentTimeMillis();
+                Result brute = FileMergerBruteForce.mergeBruteForce(new ArrayList<>(files), pastaN);
+                long endBrute = System.currentTimeMillis();
+                tBrute = endBrute - startBrute;
+
+                System.out.println("\nAlgoritmo Força Bruta:");
+                System.out.println(" Custo total: " + brute.cost + " bytes");
+                System.out.println(" Tempo: " + tBrute + " ms");
+                System.out.println(" Resultado força bruta: " + brute.file.getAbsolutePath());
+
+
+            } else {
+                tBrute = -1;
+            }
+
 
             // ============================
             // GULOSO
             // ============================
             long startGreedy = System.currentTimeMillis();
             SolucaoGulosa.GreedyResult greedyResult =
-                    SolucaoGulosa.mergeGreedy(new ArrayList<>(files), outputDir);
+                    SolucaoGulosa.mergeGreedy(new ArrayList<>(files), pastaN);
             long endGreedy = System.currentTimeMillis();
             long tGreedy = endGreedy - startGreedy;
 
-            // ============================
-            // FORÇA BRUTA
-            // ============================
-            long tBrute;
-            if (n <= 6) {
-                long startBrute = System.currentTimeMillis();
-                Result brute = FileMergerBruteForce.mergeBruteForce(new ArrayList<>(files), outputDir);
-                long endBrute = System.currentTimeMillis();
-                tBrute = endBrute - startBrute;
-            } else {
-                tBrute = -1; // não executado
-            }
+            System.out.println("\nAlgoritmo Guloso:");
+            System.out.println(" Custo total: " + greedyResult.cost + " bytes");
+            System.out.println(" Tempo: " + tGreedy + " ms");
+            System.out.println(" Resultado guloso: " + greedyResult.finalFile.getAbsolutePath());
 
-            // escreve linha no CSV
-            writer.write(n + "," + tSeq + "," + tGreedy + "," + tBrute + "\n");
 
-            // salva nos arrays para gerar o gráfico
+
             eixoN.add(n);
             tempoSeq.add(tSeq);
             tempoGreedy.add(tGreedy);
             tempoBrute.add(tBrute);
-
-            cleanupFiles(files);
         }
 
-        writer.close();
-        System.out.println("\nCSV gerado: " + csv.getAbsolutePath());
 
         // ============================================================
         // GERAR GRÁFICO
@@ -95,27 +106,41 @@ public class MainGrafico {
                 .yAxisTitle("tempo (ms)")
                 .build();
 
+        XYChart chart3 = new XYChartBuilder()
+                .width(900)
+                .height(600)
+                .title("Comparação de Tempo — Sequencial vs Força Bruta")
+                .xAxisTitle("n (qtde de arquivos)")
+                .yAxisTitle("tempo (ms)")
+                .build();
+
         // Série Sequencial
-        XYSeries s1 = chart.addSeries("Sequencial", eixoN, tempoSeq);
+        XYSeries s1 = chart3.addSeries("Seq", eixoN, tempoSeq);
         s1.setMarker(SeriesMarkers.CIRCLE);
+        XYSeries s2 = chart3.addSeries("Bruta", eixoN, tempoBrute);
+        s2.setMarker(SeriesMarkers.SQUARE);
+        BitmapEncoder.saveBitmap(chart3, "grafico_forcabruta_vs_sequencial", BitmapEncoder.BitmapFormat.PNG);
+
+        XYSeries s3 = chart.addSeries("Sequencial", eixoN, tempoSeq);
+        s3.setMarker(SeriesMarkers.CIRCLE);
 
         // Série Guloso
-        XYSeries s2 = chart.addSeries("Guloso", eixoN, tempoGreedy);
-        s2.setMarker(SeriesMarkers.DIAMOND);
+        XYSeries s4 = chart.addSeries("Guloso", eixoN, tempoGreedy);
+        s4.setMarker(SeriesMarkers.DIAMOND);
 
         // Série Força Bruta
-        XYSeries s3 = chart.addSeries("Força Bruta", eixoN, tempoBrute);
-        s3.setMarker(SeriesMarkers.SQUARE);
+        XYSeries s5 = chart.addSeries("Força Bruta", eixoN, tempoBrute);
+        s5.setMarker(SeriesMarkers.SQUARE);
 
         // Exportar PNG
         BitmapEncoder.saveBitmap(chart, "grafico_comparativo", BitmapEncoder.BitmapFormat.PNG);
 
         System.out.println("\nGráfico gerado como: grafico_comparativo.png");
 
-        XYSeries s4 = chart2.addSeries("Seq", eixoN, tempoSeq);
-        s4.setMarker(SeriesMarkers.CIRCLE);
-        XYSeries s5 = chart2.addSeries("Algoritmo Guloso", eixoN, tempoGreedy);
-        s5.setMarker(SeriesMarkers.SQUARE);
+        XYSeries s6 = chart2.addSeries("Seq", eixoN, tempoSeq);
+        s6.setMarker(SeriesMarkers.CIRCLE);
+        XYSeries s7 = chart2.addSeries("Algoritmo Guloso", eixoN, tempoGreedy);
+        s7.setMarker(SeriesMarkers.SQUARE);
         BitmapEncoder.saveBitmap(chart2, "grafico_sem_bruteforce", BitmapEncoder.BitmapFormat.PNG);
 
     }
