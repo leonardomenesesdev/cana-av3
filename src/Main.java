@@ -49,11 +49,12 @@ public class Main {
 
         if (bruteResult != null) {
             System.out.println("Custo ótimo: " + bruteResult.cost + " bytes");
+            System.out.println("Tempo: " + timeBrute + " ms");
             System.out.println("Arquivo resultante: " + bruteResult.file.getAbsolutePath());
 
         }
 
-        System.out.println("Tempo: " + timeBrute + " ms");
+
 
 
 
